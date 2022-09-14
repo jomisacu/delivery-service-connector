@@ -91,7 +91,7 @@ class DeliveryHelpers
         self::validateEventName($eventName);
 
         $sql = '
-            INSERT INTO product_events (event_name, product_id, occurred_on) VALUES (?, ?, ?)
+            INSERT INTO ds_product_events (event_name, product_id, occurred_on) VALUES (?, ?, ?)
         ';
         self::getDatabaseService()->prepare($sql)->execute([$eventName, $productId, time()]);
     }
@@ -129,7 +129,7 @@ class DeliveryHelpers
 
     public static function deleteEvents(array $eventIds)
     {
-        $sql = 'DELETE FROM product_events WHERE id IN (' . implode(',', $eventIds) . ')';
+        $sql = 'DELETE FROM ds_product_events WHERE id IN (' . implode(',', $eventIds) . ')';
         DeliveryHelpers::getDatabaseService()->prepare($sql)->execute();
     }
 
@@ -347,7 +347,7 @@ class DeliveryHelpers
 
         DeliveryHelpers::validateLimit($limit);
 
-        $sql = sprintf('SELECT * FROM product_events WHERE %s_ok <> 1 LIMIT %s', $delivery, $limit);
+        $sql = sprintf('SELECT * FROM ds_product_events WHERE %s_ok <> 1 LIMIT %s', $delivery, $limit);
         $statement = DeliveryHelpers::getDatabaseService()->prepare($sql);
         $statement->execute();
 
@@ -385,7 +385,7 @@ class DeliveryHelpers
 
         self::getDatabaseService()->exec(
             "
-            UPDATE product_events 
+            UPDATE ds_product_events 
             SET {$delivery}_ok = 1 
             WHERE id IN (" . implode(", ", $eventIds) . ") 
         "

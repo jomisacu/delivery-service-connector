@@ -7,16 +7,22 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\RequestOptions;
-use Jomisacu\DeliveryServiceConnector\Contracts\DriverInterface;
+use Jomisacu\DeliveryServiceConnector\Contracts\DeliveryServiceInterface;
 use Jomisacu\DeliveryServiceConnector\Contracts\OrderInterface;
 use Jomisacu\DeliveryServiceConnector\Contracts\ProductInterface;
+use Jomisacu\DeliveryServiceConnector\Contracts\ProductRepositoryInterface;
 use Jomisacu\DeliveryServiceConnector\OrderRejectedException;
 
 use function json_decode;
 use function json_encode;
 
-final class Driver implements DriverInterface
+final class DeliveryService implements DeliveryServiceInterface
 {
+    /**
+     * @var ProductRepositoryInterface
+     */
+    private $productRepository;
+
     /**
      * @var string
      */
@@ -50,8 +56,15 @@ final class Driver implements DriverInterface
      * @param string $password
      * @param string $locationId
      */
-    public function __construct($baseUrl, $partnerKey, $username, $password, $locationId = null)
-    {
+    public function __construct(
+        ProductRepositoryInterface $productRepository,
+        $baseUrl,
+        $partnerKey,
+        $username,
+        $password,
+        $locationId = null
+    ) {
+        $this->productRepository = $productRepository;
         $this->baseUrl = $baseUrl;
         $this->partnerKey = $partnerKey;
         $this->username = $username;
@@ -208,32 +221,6 @@ final class Driver implements DriverInterface
     }
 
     /**
-     * @param ProductInterface $product
-     * @return void
-     * @throws GuzzleException
-     */
-    public function removeProduct(ProductInterface $product)
-    {
-        $client = new Client();
-        $body = [
-            'type' => 'deactivate',
-            'productsSku' => [$product->getSku()],
-        ];
-
-        if (isset($this->locationId) && $this->locationId) {
-            $body['locationsId'] = [$this->locationId];
-        }
-
-        $options = [
-            RequestOptions::HEADERS => $this->getDefaultHeaders(),
-            RequestOptions::BODY => json_encode($body)
-        ];
-        $response = $client->put($this->baseUrl . sprintf("/api/v1/partners/%s/products", $this->partnerKey), $options);
-        echo $response->getBody()->getContents();
-        exit;
-    }
-
-    /**
      * @param OrderInterface $order
      * @return void
      * @throws OrderRejectedException
@@ -320,12 +307,17 @@ final class Driver implements DriverInterface
         return $headers;
     }
 
+    public function updateProductById($productId)
+    {
+        $this->updateProduct($this->productRepository->findById($productId));
+    }
+
     /**
      * @param ProductInterface $product
      * @return void
      * @throws GuzzleException
      */
-    public function updateProduct(ProductInterface $product)
+    private function updateProduct(ProductInterface $product)
     {
         $this->publishProduct($product);
     }
@@ -335,7 +327,7 @@ final class Driver implements DriverInterface
      * @return void
      * @throws GuzzleException
      */
-    public function publishProduct(ProductInterface $product)
+    private function publishProduct(ProductInterface $product)
     {
         $body = [
             'products' => [
@@ -353,5 +345,49 @@ final class Driver implements DriverInterface
             $this->baseUrl . "/api/v1/partners/$this->partnerKey/products",
             $options
         );
+    }
+
+    public function publishProductById($productId)
+    {
+        $this->publishProduct($this->productRepository->findById($productId));
+    }
+
+    public function removeProductById($productId)
+    {
+        $this->removeProduct($this->productRepository->findById($productId));
+    }
+
+    /**
+     * @param ProductInterface $product
+     * @return void
+     * @throws GuzzleException
+     */
+    private function removeProduct(ProductInterface $product)
+    {
+        $client = new Client();
+        $body = [
+            'type' => 'deactivate',
+            'productsSku' => [$product->getSku()],
+        ];
+
+        if (isset($this->locationId) && $this->locationId) {
+            $body['locationsId'] = [$this->locationId];
+        }
+
+        $options = [
+            RequestOptions::HEADERS => $this->getDefaultHeaders(),
+            RequestOptions::BODY => json_encode($body)
+        ];
+        $response = $client->put($this->baseUrl . sprintf("/api/v1/partners/%s/products", $this->partnerKey), $options);
+        echo $response->getBody()->getContents();
+        exit;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function getName()
+    {
+        return 'hugo';
     }
 }

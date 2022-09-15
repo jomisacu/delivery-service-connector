@@ -5,11 +5,6 @@ namespace Jomisacu\DeliveryServiceConnector\Contracts;
 interface ProductInterface
 {
     /**
-     * @return string
-     */
-    public function getName();
-
-    /**
      * @return array
      */
     public function toArray();

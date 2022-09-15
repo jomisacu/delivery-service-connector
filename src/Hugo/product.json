@@ -1,0 +1,21 @@
+{
+  "sku": "MB-105",
+  "sort": 1,
+  "name": "Laptop asus mb-105",
+  "price": 36000,
+  "description": "Mother board asus nuevo (editado)",
+  "extra_info": "",
+  "ei_partner_code": "ed23",
+  "images": [
+    {
+      "format": "url",
+      "list": [
+        "https:\/\/baynao.com.do\/baynao_images\/1\/product-9127-01.jpg",
+        "https:\/\/baynao.com.do\/baynao_images\/1\/product-9127-02.jpg"
+      ]
+    }
+  ],
+  "taxonomies": [
+    "6046d9990d5d2f4f9628e2f5"
+  ]
+}

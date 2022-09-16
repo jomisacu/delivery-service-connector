@@ -165,7 +165,7 @@ final class DeliveryService implements DeliveryServiceInterface
      */
     private function getAccessTokenCacheFilename($username)
     {
-        return __DIR__ . '/cache/' . md5($username) . '.json';
+        return sys_get_temp_dir() . '/hugo_cache_' . md5($username) . '.json';
     }
 
     /**

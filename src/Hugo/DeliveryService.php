@@ -379,8 +379,8 @@ final class DeliveryService implements DeliveryServiceInterface
             RequestOptions::BODY => json_encode($body)
         ];
         $response = $client->put($this->baseUrl . sprintf("/api/v1/partners/%s/products", $this->partnerKey), $options);
-        echo $response->getBody()->getContents();
-        exit;
+//        echo $response->getBody()->getContents();
+//        exit;
     }
 
     /**
